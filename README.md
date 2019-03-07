@@ -1,6 +1,6 @@
 # django-csv-example
 
-Example of using CSV data to populate a model.
+Example of integrating CSV data into Django. Includes importing CSV data to populate a model and exporting a CSV of selected records from the admin.
 
 
 Like my work? Tip me! https://www.paypal.me/jessamynsmith
