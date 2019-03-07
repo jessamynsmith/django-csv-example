@@ -4,7 +4,7 @@ import os
 import re
 
 from django.core.management.base import BaseCommand
-from csv_example.models import SoilMeasurement
+from csv_example import models as csv_example_models
 
 
 def camel_case_to_snake_case(name):
@@ -40,31 +40,21 @@ class Command(BaseCommand):
             for row in reader:
                 kwargs = {}
                 for key in row:
+                    # Convert CSV column names to model field names
                     transformed_key = camel_case_to_snake_case(key)
                     transformed_key = transformed_key.replace('.', '_')
 
-                    value = row[key]   
+                    # Parse values into appropriate data type
+                    value = row[key]
                     parsed_value = parse_value(transformed_key, value)
 
                     kwargs[transformed_key] = parsed_value
 
-                SoilMeasurement.objects.create(**kwargs)
-                """
-                SiteID,Year,DOY,Season,Treatment,n_Replicates,R_avg_umol.m2.s,Resp_stdev,Moist_avg_cm3.cm.3,Moist_stdev,Stemp_Avg_C,Stemp_SD_C,WarmingStart,EcosystemType,sand_pct,silt_pct,clay_pct
+                # Split out site info from measurement info
+                soil_site_keys = ['warming_start', 'ecosystem_type', 'sand_pct', 'silt_pct', 'clay_pct']
+                soil_site_kwargs = {key: kwargs.pop(key) for key in soil_site_keys if key in kwargs}
+                site_id = kwargs.pop('site_id')
 
-                site_id = models.IntegerField()
-    year = models.IntegerField()
-    doy = models.DecimalField(max_digits=4, decimal_places=1)
-    season = models.CharField(choices=SEASON_CHOICES, max_length=10)
-    treatment = models.CharField(max_length=2)
-    n_replicates = models.IntegerField()
-    r_avg_umol_m2_s = models.FloatField()
-    resp_stdev = models.FloatField()
-    moist_avg_cm3_cm_3 = models.FloatField()
-    moist_stdev = models.FloatField()
-    stemp_avg_c = models.FloatField()
-    warming_start = models.FloatField()
-    ecosystem_type = models.CharField(choices=ECOSYSTEM_CHOICES, max_length=15)
-    sand_pct = models.DecimalField(max_digits=3, decimal_places=1)
-    silt_pct = models.DecimalField(max_digits=3, decimal_places=1)
-    clay_pct"""
+                soil_site, created = csv_example_models.SoilSite.objects.get_or_create(
+                    site_id=site_id, defaults=soil_site_kwargs)
+                csv_example_models.SoilMeasurement.objects.create(**kwargs, soil_site=soil_site)
