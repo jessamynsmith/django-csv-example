@@ -56,4 +56,8 @@ Soil Measurements
             {% endif %}
         </span>
     </div>
+    
+    <br>
+    <a href="{% url 'download_csv' %}?{{ request.GET.urlencode }}">Download CSV</a>
+    <br>
 {% endblock %}
