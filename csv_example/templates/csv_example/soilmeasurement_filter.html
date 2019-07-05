@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Soil Measurements
+{% endblock %}
+
+{% block extrahead %}
+    <style>
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px black solid;
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h3>Soil Measurements</h3>
+    <form action="" method="get">
+        {{ filter.form.as_p }}
+        <input type="submit" />
+    </form>
+    
+    <br>
+    
+    <table>
+    <tr>
+        {% for field_name in field_names %}
+            <th>{{ field_name }}</th>
+        {% endfor %}
+    </tr>
+    {% for obj in page_obj_values %}
+        <tr>
+        {% for key, value in obj.items %}
+            <td>
+                {{ value }}
+            </td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </table>
+    
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+{% endblock %}
